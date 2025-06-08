@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - Free Online Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px 12px 50px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        /* Hero Section - Minimal */
+        .hero {
+            padding: 1rem 0;
+            background: transparent;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Games Grid */
+        .games-section {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 2rem 0;
+            padding: 3rem 0;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1.5rem;
+            padding: 0 2rem;
+            justify-items: center;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-icon {
+            font-size: 3.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover .game-icon {
+            transform: scale(1.1);
+        }
+
+        .game-tooltip {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .game-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid rgba(0, 0, 0, 0.8);
+        }
+
+        .game-card:hover .game-tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: -50px;
+        }
+
+        /* Hide unused styles */
+        .game-image, .play-overlay, .game-info, .game-title, .game-description, .game-stats, .rating, .stars {
+            display: none;
+        }
+
+        /* Game Modal */
+        .game-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1000px;
+            height: 80%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: #667eea;
+            color: white;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-frame {
+            width: 100%;
+            height: calc(100% - 80px);
+            border: none;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .search-container {
+                margin: 0 1rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+
+            .game-card {
+                width: 100px;
+                height: 100px;
+            }
+
+            .game-icon {
+                font-size: 2.8rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">🎮 GameHub</div>
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-box" placeholder="Search games..." id="searchInput">
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#games">Games</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#trending">Trending</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <!-- Hero content removed for cleaner design -->
+            </div>
+        </section>
+
+        <section class="games-section" id="games">
+            <div class="container">
+                <!-- Add category buttons above games -->
+                <div class="categories" id="categories" style="justify-content: center; margin-bottom: 2rem;">
+                    <button class="category-btn active" data-category="all">All Games</button>
+                    <button class="category-btn" data-category="action">Action</button>
+                    <button class="category-btn" data-category="puzzle">Puzzle</button>
+                    <button class="category-btn" data-category="racing">Racing</button>
+                    <button class="category-btn" data-category="strategy">Strategy</button>
+                    <button class="category-btn" data-category="arcade">Arcade</button>
+                </div>
+                
+                <div class="games-grid" id="gamesGrid">
+                    <!-- Games will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Game Modal -->
+    <div class="game-modal" id="gameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalGameTitle">Game Title</h3>
+                <button class="close-btn" onclick="closeGame()">✕</button>
+            </div>
+            <div class="game-frame" id="gameFrame">
+                Click to start playing!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const games = [
+            {
+                id: 1,
+                title: "Apocalypse Truck",
+                description: "Drive through the apocalypse in this intense survival truck game!",
+                category: "action",
+                rating: 4.8,
+                plays: "3.5M",
+                icon: "🚛",
+                url: "https://cloud.onlinegames.io/games/2021/1/apocalypse-truck/index-og.html"
+            },
+            {
+                id: 2,
+                title: "Space Shooter",
+                description: "Defend Earth from alien invaders in this thrilling space adventure!",
+                category: "action",
+                rating: 4.5,
+                plays: "2.3M",
+                icon: "🚀"
+            },
+            {
+                id: 3,
+                title: "Block Puzzle",
+                description: "Challenge your mind with this addictive block-matching puzzle game.",
+                category: "puzzle",
+                rating: 4.7,
+                plays: "1.8M",
+                icon: "🧩"
+            },
+            {
+                id: 4,
+                title: "Speed Racer",
+                description: "Race through challenging tracks and become the ultimate champion!",
+                category: "racing",
+                rating: 4.3,
+                plays: "3.1M",
+                icon: "🏎️"
+            },
+            {
+                id: 5,
+                title: "Chess Master",
+                description: "Test your strategic skills against AI opponents of varying difficulty.",
+                category: "strategy",
+                rating: 4.6,
+                plays: "892K",
+                icon: "♟️"
+            },
+            {
+                id: 6,
+                title: "Pac Adventure",
+                description: "Navigate mazes and collect dots while avoiding colorful ghosts!",
+                category: "arcade",
+                rating: 4.8,
+                plays: "4.2M",
+                icon: "👻"
+            },
+            {
+                id: 7,
+                title: "Ninja Warrior",
+                description: "Master the art of stealth and combat in this action-packed adventure.",
+                category: "action",
+                rating: 4.4,
+                plays: "1.7M",
+                icon: "🥷"
+            },
+            {
+                id: 8,
+                title: "Word Quest",
+                description: "Expand your vocabulary and solve challenging word puzzles.",
+                category: "puzzle",
+                rating: 4.5,
+                plays: "1.2M",
+                icon: "📝"
+            },
+            {
+                id: 9,
+                title: "Drift King",
+                description: "Master the art of drifting on challenging mountain roads.",
+                category: "racing",
+                rating: 4.2,
+                plays: "2.5M",
+                icon: "🏁"
+            },
+            {
+                id: 10,
+                title: "Tower Defense",
+                description: "Build towers and defend your base from waves of enemies.",
+                category: "strategy",
+                rating: 4.7,
+                plays: "1.9M",
+                icon: "🏰"
+            },
+            {
+                id: 11,
+                title: "Bubble Pop",
+                description: "Match colorful bubbles and clear the board in this relaxing game.",
+                category: "arcade",
+                rating: 4.3,
+                plays: "3.8M",
+                icon: "🫧"
+            },
+            {
+                id: 12,
+                title: "Zombie Survival",
+                description: "Survive the zombie apocalypse with limited resources and weapons.",
+                category: "action",
+                rating: 4.6,
+                plays: "2.1M",
+                icon: "🧟"
+            },
+            {
+                id: 13,
+                title: "Sudoku Pro",
+                description: "Solve number puzzles with multiple difficulty levels and hints.",
+                category: "puzzle",
+                rating: 4.8,
+                plays: "967K",
+                icon: "🔢"
+            }
+        ];
+
+        let currentCategory = 'all';
+        let searchTerm = '';
+
+        // DOM elements
+        const gamesGrid = document.getElementById('gamesGrid');
+        const searchInput = document.getElementById('searchInput');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const gameModal = document.getElementById('gameModal');
+
+        // Initialize the website
+        function init() {
+            renderGames();
+            setupEventListeners();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            searchInput.addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderGames();
+            });
+
+            // Category buttons
+            categoryButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    categoryButtons.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.dataset.category;
+                    renderGames();
+                });
+            });
+
+            // Close modal on outside click
+            gameModal.addEventListener('click', (e) => {
+                if (e.target === gameModal) {
+                    closeGame();
+                }
+            });
+
+            // Escape key to close modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && gameModal.style.display === 'flex') {
+                    closeGame();
+                }
+            });
+        }
+
+        // Filter games based on category and search
+        function filterGames() {
+            return games.filter(game => {
+                const matchesCategory = currentCategory === 'all' || game.category === currentCategory;
+                const matchesSearch = game.title.toLowerCase().includes(searchTerm) || 
+                                    game.description.toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+        }
+
+        // Render games grid
+        function renderGames() {
+            const filteredGames = filterGames();
+            
+            if (filteredGames.length === 0) {
+                gamesGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎮</div>
+                        <h3>No games found</h3>
+                        <p>Try adjusting your search or category filters</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gamesGrid.innerHTML = filteredGames.map(game => `
+                <div class="game-card fade-in-up" onclick="playGame(${game.id})">
+                    <div class="game-icon">${game.icon}</div>
+                    <div class="game-tooltip">${game.title}</div>
+                </div>
+            `).join('');
+        }
+
+        // Play game function
+        function playGame(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+
+            document.getElementById('modalGameTitle').textContent = game.title;
+            
+            // Check if game has external URL
+            if (game.url) {
+                document.getElementById('gameFrame').innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">${game.icon}</div>
+                        <h2>${game.title}</h2>
+                        <p style="margin: 1rem 0; color: #666;">${game.description}</p>
+                        <div class="loading" style="margin: 2rem auto;"></div>
+                        <p style="color: #888;">Loading game...</p>
+                    </div>
+                `;
+                
+                gameModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                // Load actual game in iframe
+                setTimeout(() => {
+                    document.getElementById('gameFrame').innerHTML = `
+                        <iframe 
+                            src="${game.url}" 
+                            style="width: 100%; height: 100%; border: none; background: white;"
+                            allow="fullscreen; autoplay; encrypted-media"
+                            allowfullscreen>
+                        </iframe>
+                    `;
+                }, 1500);
+            } else {
+                // Demo games (existing behavior)
+                document.getElementById('gameFrame').innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">${game.icon}</div>
+                        <h2>${game.title}</h2>
+                        <p style="margin: 1rem 0; color: #666;">${game.description}</p>
+                        <div class="loading" style="margin: 2rem auto;"></div>
+                        <p style="color: #888;">Loading game...</p>
+                    </div>
+                `;
+                
+                gameModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                // Simulate game loading for demo games
+                setTimeout(() => {
+                    document.getElementById('gameFrame').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 6rem; margin-bottom: 1rem;">${game.icon}</div>
+                            <h2 style="margin-bottom: 1rem;">Now Playing: ${game.title}</h2>
+                            <p style="color: #666; margin-bottom: 2rem;">Use arrow keys to move, spacebar to interact</p>
+                            <div style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 1rem; border-radius: 10px; font-size: 1.2rem;">
+                                🎮 Game is running! 🎮
+                            </div>
+                            <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
+                                This is a demo. In a real implementation, the actual game would load here.
+                            </p>
+                        </div>
+                    `;
+                }, 2000);
+            }
+        }
+
+        // Close game modal
+        function closeGame() {
+            gameModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                
+                // Handle different navigation targets
+                switch(targetId) {
+                    case 'categories':
+                        document.querySelector('.categories').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        break;
+                    case 'games':
+                        document.querySelector('.games-section').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        break;
+                    case 'home':
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                        break;
+                    case 'trending':
+                        // Scroll to games section and filter by highest rated
+                        document.querySelector('.games-section').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        // Auto-sort by rating after scroll
+                        setTimeout(() => {
+                            sortGamesByRating();
+                        }, 500);
+                        break;
+                    default:
+                        const target = document.querySelector(`#${targetId}`);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                }
+            });
+        });
+
+        // Sort games by rating function
+        function sortGamesByRating() {
+            const sortedGames = [...games].sort((a, b) => b.rating - a.rating);
+            const originalGames = games.slice();
+            games.length = 0;
+            games.push(...sortedGames);
+            renderGames();
+            
+            // Add trending indicator
+            document.querySelector('.section-title').innerHTML = '🔥 Trending Games (Highest Rated)';
+            
+            // Reset after 5 seconds
+            setTimeout(() => {
+                games.length = 0;
+                games.push(...originalGames);
+                renderGames();
+                document.querySelector('.section-title').innerHTML = 'Featured Games';
+            }, 5000);
+        }
+
+        // Add some dynamic effects
+        function addDynamicEffects() {
+            // Parallax effect for hero section
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const hero = document.querySelector('.hero');
+                if (hero) {
+                    hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
+            });
+
+            // Add random color variations to game cards
+            setTimeout(() => {
+                const gameCards = document.querySelectorAll('.game-card');
+                const colors = [
+                    'linear-gradient(135deg, #667eea, #764ba2)',
+                    'linear-gradient(135deg, #f093fb, #f5576c)',
+                    'linear-gradient(135deg, #4facfe, #00f2fe)',
+                    'linear-gradient(135deg, #43e97b, #38f9d7)',
+                    'linear-gradient(135deg, #fa709a, #fee140)',
+                    'linear-gradient(135deg, #a8edea, #fed6e3)',
+                    'linear-gradient(135deg, #ffecd2, #fcb69f)',
+                    'linear-gradient(135deg, #ff8a80, #ff5722)',
+                    'linear-gradient(135deg, #84fab0, #8fd3f4)',
+                    'linear-gradient(135deg, #d299c2, #fef9d7)',
+                    'linear-gradient(135deg, #89f7fe, #66a6ff)',
+                    'linear-gradient(135deg, #fdbb2d, #22c1c3)'
+                ];
+                
+                gameCards.forEach((card, i) => {
+                    card.style.background = colors[i % colors.length];
+                    card.style.boxShadow = `0 8px 25px ${colors[i % colors.length].match(/#[a-fA-F0-9]{6}/)[0]}33`;
+                });
+            }, 100);
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            addDynamicEffects();
+            
+            // Handle hash navigation on page load
+            if (window.location.hash) {
+                setTimeout(() => {
+                    const hash = window.location.hash.substring(1);
+                    const element = document.querySelector(`#${hash}`) || document.querySelector(`.${hash}`);
+                    if (element) {
+                        element.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                }, 500);
+            }
+        });
+
+        // Add some fun interactions
+        let clickCount = 0;
+        document.querySelector('.logo').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 5) {
+                document.querySelector('.logo').style.animation = 'spin 1s ease-in-out';
+                setTimeout(() => {
+                    document.querySelector('.logo').style.animation = '';
+                    clickCount = 0;
+                }, 1000);
+            }
+        });
+
+        // Konami code easter egg
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.code);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+            
+            if (konamiCode.join(',') === konamiSequence.join(',')) {
+                document.body.style.animation = 'none';
+                document.body.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3)';
+                document.body.style.backgroundSize = '400% 400%';
+                document.body.style.animation = 'gradient 3s ease infinite';
+                
+                setTimeout(() => {
+                    document.body.style.animation = '';
+                    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                }, 10000);
+                
+                konamiCode = [];
+            }
+        });
+
+        // Add gradient animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes gradient {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
